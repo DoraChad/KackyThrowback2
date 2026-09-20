@@ -369,13 +369,14 @@ function rankPlayers(playersMap) {
 }
 
 async function createTabContent() {
+  let blobs;
   if (!trackData) {
     trackData = await trackDataFetch;
     trackData.forEach(t => {
       t.trackMetadata.lastModified = new Date(t.trackMetadata.lastModified);
     });
 
-    const blobs = await preloadImages();
+    blobs = await preloadImages();
   }
   playerData = await getModLeaderboard();
 
