@@ -175,10 +175,12 @@ styles.textContent = `
 }`;
 document.head.appendChild(styles);
 
-const trackData = await fetch('./trackData.json').then(r => r.json());
-trackData.forEach(t => {
-  t.trackMetadata.lastModified = new Date(t.trackMetadata.lastModified);
-});
+(async () => {
+  const trackData = await fetch('./trackData.json').then(r => r.json());
+  trackData.forEach(t => {
+    t.trackMetadata.lastModified = new Date(t.trackMetadata.lastModified);
+  });
+})();
 
 const difficulties = {
   1: "Easy",
