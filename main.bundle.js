@@ -220,7 +220,7 @@ function getTop3Data(allData) {
     result[trackNum] = entries.slice(0, 3).map((entry, i) => ({
       position: i + 1,
       userId: entry.userId,
-      name: entry.name,
+      name: entry.nickname,
       frames: entry.frames
     }));
   });
@@ -427,7 +427,7 @@ async function createTabContent() {
     previewLbs.className = "top-three-list";
     rightDiv.appendChild(previewLbs);
 
-    /*for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 3; i++) {
       if (!top3PerTrack) continue;
       const text = top3PerTrack[e][i]?.name;
       if (!text || text === "") continue;
@@ -440,7 +440,7 @@ async function createTabContent() {
         list.textContent = `🥉${text}`;
       }
       previewLbs.appendChild(list);
-    }*/
+    }
 
     rightDiv.appendChild(viewButton);
     viewButton.appendChild(document.createTextNode("See leaderboard"))
