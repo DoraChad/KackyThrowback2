@@ -1,4 +1,4 @@
-const github_root = "https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main"
+const github_root = "https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/"
 
 
 
