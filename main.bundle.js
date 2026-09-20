@@ -328,7 +328,7 @@ async function getModLeaderboard() {
 }
 
 const getSeasonalTrackCode = async function(trackNum) {
-  const url = github_root + `resources/track/${trackNum + 25}.track`;
+  const url = github_root + `resources/tracks/${trackNum + 25}.track`;
 
   const res = await fetch(url);
 
