@@ -1,3 +1,7 @@
+const github_root = "https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main"
+
+
+
 let tabButton;
 let tabContents;
 let top3PerTrack;
@@ -175,7 +179,7 @@ styles.textContent = `
 }`;
 document.head.appendChild(styles);
 
-const trackDataFetch = fetch('https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/resources/trackData.json').then(r => r.json());
+const trackDataFetch = fetch(github_root + "resources/trackData.json").then(r => r.json());
 let trackData;
 
 const difficulties = {
@@ -194,7 +198,7 @@ const teams = {
 }
 
 async function loadVariableFromGitHub(url) {
-  const response = await fetch(`https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/${url}`);
+  const response = await fetch(github_root + url);
 
   if (!response.ok) {
     throw new Error(`Failed to fetch file: ${response.status}`);
@@ -245,12 +249,12 @@ async function preloadImages() {
   const urls = [];
 
   for (let e = 1; e <= trackData.length; e++) {
-   urls.push(`https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/images/trackCovers/${e + 25}.png`);
+   urls.push(github_root + `resources/trackCovers/${e + 25}.png`);
   }
 
   const added = new Set();
   for (const track of trackData) {
-      const url = `https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/images/icons/KackiestLogos_${track.difficulty}e.png`;
+      const url = github_root + `resources/icons/KackiestLogos_${track.difficulty}e.png`;
       if (!added.has(url)) {
           added.add(url);
           urls.push(url);
@@ -324,7 +328,7 @@ async function getModLeaderboard() {
 }
 
 const getSeasonalTrackCode = async function(trackNum) {
-  const url = `https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/tracks/throwback/${trackNum + 25}.track`;
+  const url = github_root + `resources/track/${trackNum + 25}.track`;
 
   const res = await fetch(url);
 
@@ -434,7 +438,7 @@ async function createTabContent() {
     viewButton.appendChild(document.createTextNode("See leaderboard"))
     
     const button = document.createElement("button");
-    button.style.backgroundImage = `url("${blobs[`https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/images/trackCovers/${e + 25}.png`]}")`;
+    button.style.backgroundImage = `url("${blobs[github_root + `resources/trackCovers/${e + 25}.png`]}")`;
     button.addEventListener("click", async () => {
       const code = await getSeasonalTrackCode(e);
       forceLoadTrackByCode(e, true);
@@ -474,7 +478,7 @@ async function createTabContent() {
 
     const image = document.createElement("div");
     image.className = "tag-img";
-    image.style.backgroundImage = `url("${blobs[`https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/images/icons/KackiestLogos_${track.difficulty}e.png`]}")`;
+    image.style.backgroundImage = `url("${blobs[github_root + `resources/icons/KackiestLogos_${track.difficulty}e.png`]}")`;
 
     const text = document.createElement("p")
     text.style.textShadow = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000";
@@ -674,8 +678,8 @@ async function createTabContent() {
 function forceLoadTrackByCode(track, quickLoad = false) {
     modCustomLoad = true;
     const t = trackData[track - 1];
-    modLoadCode = `https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/tracks/throwback/${track + 25}.track`;
-    forceLoadTrack(t.trackMetadata, t.environment, window.loadCallback(t), null, t.id, `https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/images/thumbnails/${track + 25}.png`, quickLoad)
+    modLoadCode = github_root + `resources/tracks/${track + 25}.track`;
+    forceLoadTrack(t.trackMetadata, t.environment, window.loadCallback(t), null, t.id, github_root + `resources/thumbnails/${track + 25}.png`, quickLoad)
     //forceLoadTrack(trackInfo.trackMetadata, trackInfo.trackData, "custom", trackId, null, false, quickLoad)
 }
 
