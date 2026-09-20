@@ -182,6 +182,8 @@ document.head.appendChild(styles);
 const trackDataFetch = fetch(github_root + "resources/trackData.json").then(r => r.json());
 let trackData;
 
+let blobsPromise;
+
 const difficulties = {
   1: "Easy",
   2: "High Easy",
@@ -369,15 +371,18 @@ function rankPlayers(playersMap) {
 }
 
 async function createTabContent() {
-  let blobs;
   if (!trackData) {
     trackData = await trackDataFetch;
     trackData.forEach(t => {
       t.trackMetadata.lastModified = new Date(t.trackMetadata.lastModified);
     });
-
-    blobs = await preloadImages();
   }
+
+  if (!blobsPromise) {
+    blobsPromise = preloadImages();
+  }
+  const blobs = await blobsPromise;
+
   playerData = await getModLeaderboard();
 
   const topDiv = document.createElement("div");
