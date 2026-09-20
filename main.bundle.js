@@ -176,7 +176,7 @@ styles.textContent = `
 document.head.appendChild(styles);
 
 (async () => {
-  const trackData = await fetch('./trackData.json').then(r => r.json());
+  const trackData = await fetch('./resources/trackData.json').then(r => r.json());
   trackData.forEach(t => {
     t.trackMetadata.lastModified = new Date(t.trackMetadata.lastModified);
   });
