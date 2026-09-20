@@ -175,13 +175,8 @@ styles.textContent = `
 }`;
 document.head.appendChild(styles);
 
+const trackDataFetch = fetch('https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/resources/trackData.json').then(r => r.json());
 let trackData;
-(async () => {
-  trackData = await fetch('https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/resources/trackData.json').then(r => r.json());
-  trackData.forEach(t => {
-    t.trackMetadata.lastModified = new Date(t.trackMetadata.lastModified);
-  });
-})();
 
 const difficulties = {
   1: "Easy",
@@ -370,6 +365,11 @@ function rankPlayers(playersMap) {
 }
 
 async function createTabContent() {
+  trackData = await trackDataFetch;
+  trackData.forEach(t => {
+    t.trackMetadata.lastModified = new Date(t.trackMetadata.lastModified);
+  });
+
   const blobs = await preloadImages();
   playerData = await getModLeaderboard();
 
