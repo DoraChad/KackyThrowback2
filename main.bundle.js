@@ -613,7 +613,7 @@ const teams = {
 }
 
 async function loadVariableFromGitHub(url) {
-  const response = await fetch(`https://raw.githubusercontent.com/DoraChad/KackyThrowback/refs/heads/main/${url}`);
+  const response = await fetch(`https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/${url}`);
 
   if (!response.ok) {
     throw new Error(`Failed to fetch file: ${response.status}`);
@@ -743,7 +743,7 @@ async function getModLeaderboard() {
 }
 
 const getSeasonalTrackCode = async function(trackNum) {
-  const url = `https://raw.githubusercontent.com/DoraChad/KackyThrowback/refs/heads/main/tracks/throwback/${trackNum}.track`;
+  const url = `https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/tracks/throwback/${trackNum}.track`;
 
   const res = await fetch(url);
 
@@ -1088,7 +1088,7 @@ async function createTabContent() {
 function forceLoadTrackByCode(track, quickLoad = false) {
     modCustomLoad = true;
     const t = trackData[track - 1];
-    modLoadCode = `https://raw.githubusercontent.com/DoraChad/KackyThrowback/refs/heads/main/tracks/throwback/${track}.track`;
+    modLoadCode = `https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/tracks/throwback/${track + 25}.track`;
     forceLoadTrack(t.trackMetadata, t.environment, window.loadCallback(t), null, t.id, `https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/images/thumbnails/${track + 25}.png`, quickLoad)
     //forceLoadTrack(trackInfo.trackMetadata, trackInfo.trackData, "custom", trackId, null, false, quickLoad)
 }
