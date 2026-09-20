@@ -743,7 +743,7 @@ async function getModLeaderboard() {
 }
 
 const getSeasonalTrackCode = async function(trackNum) {
-  const url = `https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/tracks/throwback/${trackNum}.track`;
+  const url = `https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/tracks/throwback/${trackNum + 25}.track`;
 
   const res = await fetch(url);
 
