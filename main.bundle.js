@@ -63967,7 +63967,7 @@ function forceLoadTrackByCode(track, quickLoad = false) {
                 }
               }
             }),
-            (0, R.gn)(this, ll, "f").appendChild((0, R.gn)(this, dl, "f")),
+            //(0, R.gn)(this, ll, "f").appendChild((0, R.gn)(this, dl, "f")),
             (0, R.gn)(this, el, "m", bl).call(this));
           const N = document.createElement("button");
           ((N.className = "button play"),
@@ -64012,7 +64012,7 @@ function forceLoadTrackByCode(track, quickLoad = false) {
                 } else A([]);
               }
             }),
-            (0, R.gn)(this, ll, "f").appendChild(N),
+            //(0, R.gn)(this, ll, "f").appendChild(N),
             window.addEventListener(
               "keydown",
               (0, R.GG)(
