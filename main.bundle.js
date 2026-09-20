@@ -1,3 +1,1098 @@
+let tabButton;
+let tabContents;
+let top3PerTrack;
+let forceLoadTrack;
+let modCustomLoad = false;
+let modLoadCode = "";
+
+const styles = document.createElement("style");
+styles.textContent = `
+.top-three-list {
+    list-style-type: none;
+    text-align: right;
+    color: white;
+    font-size: 25px;
+    margin: 0;
+    white-space: nowrap;
+}
+.view-leaderboard {
+    border: solid white 5px;
+    height: 20%;
+    margin: 5%;
+    border-radius: 10px;
+    background: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    width: 70%;
+    overflow: hidden;
+}
+.right-content {
+    position: absolute;
+    height: 100%;
+    width: 25%;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+}
+.seasonal-lbs-entries-div {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+.seasonal-content.hidden {
+    display: none;
+}
+.seasonal-lbs-entry {
+    height: 50px;
+    display: flex;
+    flex-direction: row;
+    color: white;
+    align-items: center;
+    text-align: center;
+}
+.tag-div {
+    width: 100%;
+    height: 40%;
+    position: absolute;
+    bottom: 5%;
+    display: flex;
+    flex-direction: row-reverse;
+}
+.tag {
+    color: white;
+    margin: 0 0 0 20px;
+    display: flex;
+    flex-direction: row-reverse;
+    height: 100%;
+    width: 30%;
+    align-items: center;
+}
+.tag-img {
+    height: 60%;
+    background-size: cover;
+    aspect-ratio: 1 / 1;
+    background-position: center;
+    overflow: hidden;
+}
+.tag-text {
+    margin: 0 10px;
+    font-size: 24px;
+}
+.tab-text {
+    color: white;
+    font-size: 25px;
+    margin: 0;
+    position: absolute;
+    width: 50%;
+    left: 25%;
+    top: 25%;
+    height: 50%;
+    pointer-events: none;
+}
+.tab-button {
+    background: #212b58;
+    color: white;
+    font-size: 25px;
+    text-align: center;
+    cursor: pointer;
+    height: 100%;
+    border: none;
+    clip-path: polygon(3px 0, 100% 0, calc(100% - 3px) 100%, 0 100%);
+    overflow: hidden;
+    padding: 0 15px;
+}
+.tab-button::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: -1;
+    width: 0;
+    height: 100%;
+    background: #112052;
+    border-bottom: 2px solid #fff;
+    transition: width 0.1s ease-in-out;
+}
+.tab-button:hover::after {
+    width: 100%;
+}
+.tab-button.selected {
+    background: #28346a;
+}
+.tab-div {
+    height: 100%;
+    position: relative;
+}
+.seasonal-lbs-contents {
+    background: #28346a;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.seasonal-lbs-tabs {
+    height: 6%;
+    display: flex;
+}
+.seasonal-leaderboard-outer {
+    width: 50%;
+    margin: 20px 40px 0;
+}
+
+.seasonal-content {
+    width: 100%;
+    height: 180px;
+    flex-shrink: 0;
+    position: relative;
+}
+.seasonal-content > button {
+    background-position: center;
+    background-size: cover;
+    clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: none;
+    cursor: pointer;
+}
+.seasonal-tracks {
+    gap: 20px;
+    padding: 20px;
+    width: 75%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    overflow-x: clip;
+    direction: rtl;
+    height: 100%;
+}`;
+document.head.appendChild(styles);
+
+const trackData = [
+{
+    id: "2571d9e912e9f4595e1c1e6f96a420d0cf78406950f26be06fb20c4cedd21cc1",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #26",
+        author: "Muril2k10",
+        lastModified: new Date("2026-09-13T00:13:07.000Z"),
+    },
+    environment: 0,
+    trackUrl: "1",
+    difficulty: 3,
+},
+{
+    id: "26c993731d150bd266ddc5d889f450ba5154ae273b7a8211870b75f5c536ca27",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #27",
+        author: "Temp",
+        lastModified: new Date("2026-09-13T00:18:54.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 3,
+},
+{
+    id: "f67d93f9f424e624b4fc02a9558987c10e03ad222a7b3af370f9be5a31a34695",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #28",
+        author: "The Kroger",
+        lastModified: new Date("2026-09-13T00:21:41.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 9,
+},
+{
+    id: "4e7518b66c297172994a37bf859d7abb1b5c4335a930ac6d758b703ddacdf000",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest kacky #29",
+        author: "Einar",
+        lastModified: new Date("2026-09-13T00:23:04.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 4,
+},
+{
+    id: "9f419563d6cdde1bfbe07ac720c195296b26db2b0802dec395f401cac9674849",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest kacky #30",
+        author: "Einar",
+        lastModified: new Date("2026-09-13T00:24:16.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 4,
+},
+{
+    id: "47111746eda57a07f404bdabc24233b3bbd066e9f8348d56d57a7e2131d6a8e8",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #31",
+        author: "The Kroger",
+        lastModified: new Date("2026-09-13T00:25:24.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 3,
+},
+{
+    id: "7a5ef8b70315fbf7eaa67bf28f3e3b4ae32e95bb2dcb813aa00b1e7c9ee187d7",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #32",
+        author: "The Kroger",
+        lastModified: new Date("2026-09-13T00:27:54.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 4,
+},
+{
+    id: "552e97c216d810de6e69dc7c848043ffbd764963966aa5eda477c20a9c0a4cae",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #33",
+        author: "The Kroger",
+        lastModified: new Date("2026-09-20T18:23:44.000Z"),
+    },
+    environment: 0,
+    difficulty: 3,
+},
+{
+    id: "5cbda5eb8798ec038ce290209adbe696510e5f1a211d2f76c73e7478e03ada79",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #34",
+        author: "The Kroger",
+        lastModified: new Date("2026-09-13T15:47:19.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 5,
+},
+{
+    id: "c808b01bf99ace3e7330b07349cf0f9955129491d6b0ab87f394ff51df63fd8c",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #35",
+        author: "The Kroger",
+        lastModified: new Date("2026-09-20T18:33:11.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 2,
+},
+{
+    id: "0d832c9f23339a27c86fc8e52e7c1e66613f949ae862098db577e3b4dddf5469",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #36",
+        author: "The Kroger",
+        lastModified: new Date("2026-09-12T18:26:05.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 7,
+},
+{
+    id: "33e19d621d9086fa0e682f6232d2c46f36c25ffaac3c5f86ed8df8cffcf72594",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest kacky #37",
+        author: "Einar",
+        lastModified: new Date("2026-09-20T18:07:30.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 3,
+},
+{
+    id: "44358849feb6f259db2f37caf1b4457ae3e29a04e3cb90bb75bdab0069bc4c22",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #38",
+        author: "The Kroger",
+        lastModified: new Date("2026-09-13T14:41:02.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 3,
+},
+{
+    id: "602faeb5d162d0b4a36fc4df15209b0f61a295beb6a4655f173823a547a4ef03",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #39",
+        author: "The Kroger",
+        lastModified: new Date("2026-09-13T00:34:38.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 7,
+},
+{
+    id: "57287cee7b796e16239fb6d6ac5a82c07b7b3617256511d0d1f879b2b861f364",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #40",
+        author: "The Kroger",
+        lastModified: new Date("2026-09-20T18:37:11.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 7,
+},
+{
+    id: "10c8ee69bf009c7db6a135379ac63c7b707838cd8b7756b311fc2ed53e5d08e3",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "kackiest kacky #41",
+        author: "Einar",
+        lastModified: new Date("2026-09-20T18:10:09.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 1,
+},
+{
+    id: "c0d8a9f0dbdac2c81e501902575e972805196981353d3d4605bcbb12b33264db",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "kackiest kacky #42",
+        author: "Einar",
+        lastModified: new Date("2026-09-13T00:37:01.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 6,
+},
+{
+    id: "a0ac2be902274e96679c4c6e6c39330f196bead27cc022e07c6e3cab9be15861",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #43",
+        author: "The Kroger",
+        lastModified: new Date("2026-09-20T18:15:17.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 2,
+},
+{
+    id: "e67a52442d59b9d8da11aca18ace58304af61c9ed6f38aeeef5a98df110c404e",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #44",
+        author: "The Kroger",
+        lastModified: new Date("2026-09-13T00:38:32.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 8,
+},
+{
+    id: "2ebca90aa7e577c6ec9ddd91d1c9d2ca1b0846d6d876a578e5a4bd56a9366c2d",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #45",
+        author: "The Kroger",
+        lastModified: new Date("2026-09-20T18:16:05.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 3,
+},
+{
+    id: "f5530054c82bc745eba0965ba97101add6f6dcc71bbb93236b18f2e85f4c7817",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #46",
+        author: "Einar",
+        lastModified: new Date("2026-09-20T18:17:02.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 5,
+},
+{
+    id: "2ae763a95555c0f99d4493448e1d6b06992348bf672495a97ab9b0a0bcd23453",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest kacky #47",
+        author: "Einar",
+        lastModified: new Date("2026-09-20T18:18:25.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 1,
+},
+{
+    id: "22aae7e5a1d64fa0cd7b8c238a60a85a9d29b204fb14256e6fa6935629563498",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #48",
+        author: "The Kroger",
+        lastModified: new Date("2026-09-13T00:43:50.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 5,
+},
+{
+    id: "c98dc52c63c85439912203efb7edc41021c09638804beecf6fa8b7ab0818798c",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #49",
+        author: "Einar",
+        lastModified: new Date("2026-09-20T18:25:49.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 7,
+},
+{
+    id: "d0ef259c4f23e46eaba4ff0a71de644761442274e165803ecd1da35568824c28",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "kackiest kacky #50",
+        author: "Einar",
+        lastModified: new Date("2026-09-20T18:35:10.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 4,
+},
+{
+    id: "a657fdea10071e5b892ac3cee2b1142ba780ef2d5d68fff476c887b5baa30db2",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "kackiest kacky #51",
+        author: "Einar",
+        lastModified: new Date("2026-09-13T00:48:19.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 3,
+},
+{
+    id: "cfd9906a3dd8b79c4871fda7555dfc5b6361935812dcc4b16bc76c41bf8bc1f5",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #52",
+        author: "The Kroger",
+        lastModified: new Date("2026-09-13T00:51:08.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 4,
+},
+{
+    id: "36c5bfd53cf316ef8ac8c8d96d080b3e3cfe057f5b6ed2f9e668946effb0eeba",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #53",
+        author: "The Kroger",
+        lastModified: new Date("2026-09-13T00:52:17.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 5,
+},
+{
+    id: "de44cc3b7cc494c8489fd764740cf5322a5f0e175cbacf39b0d8de151380be9f",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "kackiest kacky #54",
+        author: "Einar",
+        lastModified: new Date("2026-09-13T00:53:26.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 3,
+},
+{
+    id: "53e1a02ff2619679f9fc9a57780190e3f785f224f9214823ed4a7e934c754789",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest kacky #55",
+        author: "Einar",
+        lastModified: new Date("2026-09-13T00:54:18.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 4,
+},
+{
+    id: "0e2c2aef3c95eb21d38b406849ca0536a6d3488b222af1b783282e0152a41cc9",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #56",
+        author: "Einar",
+        lastModified: new Date("2026-09-13T00:55:10.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 3,
+},
+{
+    id: "8b28242f6520c1029155ef09f731b2d795489cfeb3923ff90c0dc05111aa14fc",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #57",
+        author: "KrogerUber",
+        lastModified: new Date("2026-09-13T00:55:58.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 5,
+},
+{
+    id: "a033503b5e1ef7578a68019fb494c2d91744d67525ea693e88bca30b1c9331a4",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #58",
+        author: "The Kroger",
+        lastModified: new Date("2026-09-12T22:12:27.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 7,
+},
+{
+    id: "eb62fc7c73a114e6a646a0a35422b325bbbd1561edbfa2d22d6c1906a1838b80",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #59",
+        author: "The Kroger",
+        lastModified: new Date("2026-09-13T00:57:01.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 6,
+},
+{
+    id: "25a1e2a270522330327a865ad3e626a2eb291f738998fb90d60e6ed79b080683",
+    group: "0.6.2",
+    trackMetadata: {
+        name: "Kackiest Kacky #60",
+        author: "Einar",
+        lastModified: new Date("2026-09-13T01:05:31.000Z"),
+    },
+    environment: 0,
+    trackUrl: "",
+    difficulty: 8,
+}
+]
+
+const difficulties = {
+  1: "Easy",
+  2: "High Easy",
+  3: "Low Medium",
+  4: "Medium",
+  5: "High Medium",
+  6: "Low Hard",
+  7: "Hard",
+  8: "Very Hard",
+  9: "Absurd",
+}
+
+const teams = {
+}
+
+async function loadVariableFromGitHub(url) {
+  const response = await fetch(`https://raw.githubusercontent.com/DoraChad/KackyThrowback/refs/heads/main/${url}`);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch file: ${response.status}`);
+  }
+
+  const text = await response.text();
+  return JSON.parse(text);
+}
+
+function getTop3Data(allData) {
+  const result = {};
+
+  allData.forEach((trackData, index) => {
+    const trackNum = index + 1;
+    const entries = trackData.entries || [];
+
+    result[trackNum] = entries.slice(0, 3).map((entry, i) => ({
+      position: i + 1,
+      userId: entry.userId,
+      name: entry.name,
+      frames: entry.frames
+    }));
+  });
+
+  return result;
+}
+
+function calculateAveragePlacement(playersMap, totalTracks = trackData.length, defaultPlacement = 1000) {
+  const playersArray = Array.from(playersMap.values());
+
+  playersArray.forEach(player => {
+    const positions = [];
+    for (let trackNum = 1; trackNum <= totalTracks; trackNum++) {
+      const track = player.tracks.find(t => t.trackNum === trackNum);
+      positions.push(track ? track.position : defaultPlacement);
+    }
+
+    const sum = positions.reduce((acc, pos) => acc + pos, 0);
+    player.averagePlacement = sum / totalTracks;
+  });
+
+  playersArray.sort((a, b) => a.averagePlacement - b.averagePlacement);
+
+  return playersArray;
+}
+
+async function preloadImages() {
+  const urls = [];
+
+  for (let e = 1; e <= trackData.length; e++) {
+   urls.push(`https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/images/trackCovers/${e + 25}.png`);
+  }
+
+  const added = new Set();
+  for (const track of trackData) {
+      const url = `https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/images/icons/KackiestLogos_${track.difficulty}e.png`;
+      if (!added.has(url)) {
+          added.add(url);
+          urls.push(url);
+      }
+  }
+
+  const blobMap = {};
+
+  const fetches = await Promise.all(
+    urls.map(u => fetch(u).then(r => r.blob()))
+  );
+
+  for (let i = 0; i < urls.length; i++) {
+    const blobUrl = URL.createObjectURL(fetches[i]);
+    const img = new Image();
+    img.src = blobUrl;
+    await img.decode();   
+    blobMap[urls[i]] = blobUrl;
+  }
+
+  return blobMap;
+}
+
+async function getModLeaderboard() {
+  const urls = trackData.map(track =>
+    `https://polyproxy.polymodloader.com/v6/leaderboard?version=0.6.2&trackId=${track.id}&skip=0&amount=400&onlyVerified=false`
+  );
+
+  const allData = await Promise.all(
+    urls.map(url => fetch(url).then(r => r.json()))
+  );
+
+  top3PerTrack = getTop3Data(allData);
+
+  const players = new Map();
+
+  allData.forEach((leaderboardData, index) => {
+    const track = trackData[index];
+    const entries = leaderboardData.entries || [];
+
+    entries.forEach((entry, positionIndex) => {
+      const { userId, nickname, frames } = entry;
+
+      if (!players.has(userId)) {
+        let team = null;
+        for (const [teamName, ids] of Object.entries(teams)) {
+          if (ids.includes(userId)) {
+            team = teamName;
+            break;
+          }
+        }
+
+        players.set(userId, {
+          userId,
+          nickname,
+          team: team,
+          tracks: []
+        });
+      }
+
+      players.get(userId).tracks.push({
+        trackId: track.id,
+        trackName: track.trackMetadata?.name,
+        frames,
+        position: positionIndex + 1
+      });
+    });
+  });
+
+  return Array.from(players.values());
+}
+
+const getSeasonalTrackCode = async function(trackNum) {
+  const url = `https://raw.githubusercontent.com/DoraChad/KackyThrowback/refs/heads/main/tracks/throwback/${trackNum}.track`;
+
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch: ${res.status} ${res.statusText}`);
+  }
+
+  return await res.text();
+
+}
+
+function rankPlayers(playersMap) {
+  const playersArray = Array.from(playersMap.values());
+
+  playersArray.forEach(player => {
+    let completedCount = 0;
+    let sum = 0;
+
+    player.tracks.forEach(track => {
+      completedCount++;
+      sum += track.position;
+    });
+
+    player.completedTracks = completedCount;
+    player.averagePlacement = completedCount > 0
+      ? sum / completedCount
+      : null;
+  });
+
+  playersArray.sort((a, b) => {
+    if (b.completedTracks !== a.completedTracks) {
+      return b.completedTracks - a.completedTracks;
+    }
+    return a.averagePlacement - b.averagePlacement;
+  });
+
+  return playersArray;
+}
+
+async function createTabContent() {
+  const blobs = await preloadImages();
+  playerData = await getModLeaderboard();
+
+  const topDiv = document.createElement("div");
+  tabContents.appendChild(topDiv);
+  
+  const title = document.createElement("p");
+  title.textContent = "---- Kacky Throwback 2 ----";
+  title.style.textAlign = "center";
+  title.style.color = "white";
+  title.style.fontSize = "70px";
+  title.style.margin = "20px";
+  tabContents.appendChild(title)
+
+  const horizontalDiv = document.createElement("div");
+  horizontalDiv.style.height = "100%";
+  horizontalDiv.style.display = "flex";
+  horizontalDiv.style.flexDirection = "row";
+  tabContents.appendChild(horizontalDiv);
+  
+  const scroll = document.createElement("div");
+  scroll.className = "seasonal-tracks";
+  horizontalDiv.appendChild(scroll);
+
+  for (let e = 1; e <= trackData.length; e++) {
+    const track = trackData[e - 1];
+    
+    const contentDiv = document.createElement("div");
+    contentDiv.className = "seasonal-content";
+    scroll.appendChild(contentDiv);
+
+    const rightDiv = document.createElement("div");
+    rightDiv.className = "right-content";
+    contentDiv.appendChild(rightDiv);
+
+    const viewButton = document.createElement("button");
+    viewButton.className = "view-leaderboard";
+    viewButton.addEventListener("click", async () => {
+      forceLoadTrackByCode(e, false);
+    })
+
+    const previewLbs = document.createElement("ul");
+    previewLbs.className = "top-three-list";
+    rightDiv.appendChild(previewLbs);
+
+    /*for (let i = 0; i < 3; i++) {
+      if (!top3PerTrack) continue;
+      const text = top3PerTrack[e][i]?.name;
+      if (!text || text === "") continue;
+      const list = document.createElement("li");
+      if (i === 0) {
+        list.textContent = `🥇${text}`;
+      } else if (i === 1) {
+        list.textContent = `🥈${text}`;
+      } else {
+        list.textContent = `🥉${text}`;
+      }
+      previewLbs.appendChild(list);
+    }*/
+
+    rightDiv.appendChild(viewButton);
+    viewButton.appendChild(document.createTextNode("See leaderboard"))
+    
+    const button = document.createElement("button");
+    button.style.backgroundImage = `url("${blobs[`https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/images/trackCovers/${e + 25}.png`]}")`;
+    button.addEventListener("click", async () => {
+      const code = await getSeasonalTrackCode(e);
+      forceLoadTrackByCode(e, true);
+    })
+    contentDiv.appendChild(button);
+
+    const title = document.createElement("p");
+    title.textContent = track.trackMetadata.name;
+    title.style.textShadow = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000";
+    title.style.color = "white";
+    title.style.margin = "8px 20px";
+    title.style.fontSize = "45px";
+    title.style.zIndex = "1";
+    title.style.position = "relative";
+    title.style.pointerEvents = "none";
+
+    const author = document.createElement("p");
+    author.textContent = track.trackMetadata.author;
+    author.style.textShadow = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000";
+    author.style.color = "white";
+    author.style.margin = "0px 20px";
+    author.style.fontSize = "18px";
+    author.style.zIndex = "1";
+    author.style.position = "relative";
+    author.style.pointerEvents = "none";
+
+    contentDiv.appendChild(title);
+    contentDiv.appendChild(author);
+
+    
+    const tagDiv = document.createElement("div");
+    tagDiv.style.pointerEvents = "none";
+    tagDiv.className = "tag-div";
+
+    const tag = document.createElement("div");
+    tag.className = "tag";
+
+    const image = document.createElement("div");
+    image.className = "tag-img";
+    image.style.backgroundImage = `url("${blobs[`https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/images/icons/KackiestLogos_${track.difficulty}e.png`]}")`;
+
+    const text = document.createElement("p")
+    text.style.textShadow = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000";
+    text.textContent = difficulties[track.difficulty];
+    text.className = "tag-text";
+
+    tag.appendChild(image);
+    tag.appendChild(text);
+    tagDiv.appendChild(tag);
+
+    contentDiv.appendChild(tagDiv);
+  }
+
+  //SPACER
+  const contentDiv = document.createElement("div");
+  contentDiv.style.width = "100%";
+  contentDiv.style.height = "180px";
+  contentDiv.style.flexShrink = "0";
+  scroll.appendChild(contentDiv);
+
+  
+  const leaderboardDiv = document.createElement("div");
+  leaderboardDiv.className = "seasonal-leaderboard-outer";
+  horizontalDiv.appendChild(leaderboardDiv);
+
+  const tabDiv = document.createElement("div");
+  tabDiv.className = "seasonal-lbs-tabs";
+
+  const leaderboardContents = document.createElement("div");
+  leaderboardContents.className = "seasonal-lbs-contents";
+
+  //leaderboardDiv.appendChild(tabDiv);
+  leaderboardDiv.appendChild(leaderboardContents);
+
+  const tab1Div = document.createElement("div");
+  tab1Div.className = "tab-div";
+
+  tab1Button = document.createElement("button")
+  tab1Button.className = "tab-button selected"
+  tab1Div.appendChild(tab1Button);
+
+  tab1Button.addEventListener("click", () => {switchTab("Solo")})
+  
+  tab1Button.appendChild(document.createTextNode("Solo"));
+  
+  const tab2Div = document.createElement("div");
+  tab2Div.className = "tab-div";
+
+  tab2Button = document.createElement("button")
+  tab2Button.className = "tab-button"
+  tab2Div.appendChild(tab2Button);
+
+  tab2Button.addEventListener("click", () => {switchTab("Teams")});
+  
+  tab2Button.appendChild(document.createTextNode("Teams"));
+
+  tabDiv.appendChild(tab1Div);
+  tabDiv.appendChild(tab2Div);
+
+  const createEntry = function(parent, rank = "Rank", player = "Player", TC = "Tracks", AP = "AP", hidden=false, color=null, team) {
+      const entry = document.createElement("div");
+      entry.className = "seasonal-lbs-entry";
+
+      const t1 = document.createElement("p")
+      t1.style.padding = "10px";
+      t1.style.margin = "10px";
+      if (rank !== "Rank") {
+          t1.style.backgroundColor = "#212b58";   
+      }
+      t1.style.borderRadius = "5px";
+      t1.textContent = rank;
+      
+      const d1 = document.createElement("div")
+      const t2 = document.createElement("p")
+      t2.style.margin = "10px";
+      if (rank !== "Rank") {
+          t2.style.backgroundColor = "#212b58";
+      }
+      d1.style.display = "flex";
+      d1.style.flexDirection = "row";
+      d1.style.padding = "10px 0 10px 10px";
+      d1.style.width = "100%";
+      d1.style.alignItems = "center";
+
+      t2.style.padding = "10px";
+      t2.style.width = "100%";
+      t2.style.borderRadius = "5px";
+      t2.textContent = player;
+
+      const t3 = document.createElement("p")
+      if (typeof TC === "string") {
+          t3.textContent = TC;
+      } else {
+          t3.textContent = Math.round(TC*100)/100;
+          t3.style.width = "14px";
+      }
+      t3.style.margin = "10px";
+      t3.style.padding = "10px";
+      t3.style.borderRadius = "5px";
+      if (rank !== "Rank") {
+          t3.style.backgroundColor = "#212b58";
+      }
+
+      const t4 = document.createElement("p")
+      if (typeof AP === "string") {
+          t4.textContent = AP;
+      } else {
+          t4.textContent = Math.round(AP*100)/100;  
+          t4.style.width = "24px";    
+      }
+      t4.style.margin = "10px";
+      t4.style.padding = "10px";
+      t4.style.borderRadius = "5px";
+      if (rank !== "Rank") {
+          t4.style.backgroundColor = "#212b58";
+      }
+
+      entry.appendChild(t1);
+      entry.appendChild(d1);
+
+      if (team) {
+          const teamTag = document.createElement("div");
+          teamTag.appendChild(document.createTextNode(team));
+          teamTag.style.background = teams[team][1];
+          teamTag.style.clipPath = "polygon(0 0, 100% 0, 100% 60%, 50% 100%, 0 60%)";
+          teamTag.style.width = "25px";
+          teamTag.style.margin = "10px 0";
+          teamTag.style.padding = "8px 2px";
+          teamTag.style.textAlign = "center";
+          teamTag.style.textShadow = `
+          -1px -1px 0 black,  
+           1px -1px 0 black,
+          -1px  1px 0 black,
+           1px  1px 0 black`;
+
+          d1.appendChild(teamTag);
+      }
+      
+      d1.appendChild(t2);
+      d1.appendChild(t3);
+      d1.appendChild(t4);
+
+      if (hidden) {
+          entry.classList.add("hidden");
+      }
+      if (color) {
+          entry.style.color = color;
+      }
+
+      parent.appendChild(entry);
+      return entry;
+  };
+
+  //header
+  soloTitle = createEntry(leaderboardContents, "Rank", "Player", "# Of Tracks", "AP", false,);
+  //teamsTitle = createEntry(leaderboardContents, "Rank", "Team", "Average Placement", true);
+
+  entriesDivSolo = document.createElement("div");
+  entriesDivSolo.className = "seasonal-lbs-entries-div";
+
+  leaderboardContents.appendChild(entriesDivSolo);
+
+  entriesDivTeam = document.createElement("div");
+  entriesDivTeam.className = "seasonal-lbs-entries-div hidden";
+
+  leaderboardContents.appendChild(entriesDivTeam);
+
+  const sortedData = rankPlayers(playerData);
+  //const sortedData = calculateAveragePlacement(playerData);
+  //const sortedTeams = calculateTeamAverages(sortedData);
+  //const sortedData = await loadVariableFromGitHub("data.json");
+  //const sortedTeams = await loadVariableFromGitHub("teams.json");
+  
+  //saveVariableToFile(sortedData, "data.json");
+  //saveVariableToFile(sortedTeams, "teams.json");
+
+  //logWinterTournamentStandings(sortedData, sortedTeams, 4);
+  
+  let counter = 1;
+  sortedData.forEach(e => {
+      createEntry(entriesDivSolo, counter, e.nickname,  e.completedTracks, e.averagePlacement, false, null, e.team,)
+      counter += 1;
+  })/*
+  let counter = 1;
+  sortedData.forEach(e => {
+      createEntry(entriesDivSolo, counter, e.name,  e.averagePlacement, false, null, e.team,)
+      counter += 1;
+  })
+
+  counter = 1;
+  sortedTeams.forEach(e => {
+      createEntry(entriesDivTeam, counter, e.teamName, e.averagePlacement, false, e.color)
+      counter += 1;
+  })*/
+}
+
+function forceLoadTrackByCode(track, quickLoad = false) {
+    modCustomLoad = true;
+    const t = trackData[track - 1];
+    modLoadCode = `https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/tracks/throwback/${t.trackUrl}.track`;
+    forceLoadTrack(t.trackMetadata, t.environment, window.loadCallback(t), null, t.id, `https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/images/thumbnails/${track + 25}.png`, quickLoad)
+    //forceLoadTrack(trackInfo.trackMetadata, trackInfo.trackData, "custom", trackId, null, false, quickLoad)
+}
+
 (() => {
   var e,
     t = {
@@ -194,6 +1289,9 @@
                 trackData: g,
               };
         }
+        //DORA
+        window.decodeTrackFromExportString = p;
+        //
       },
       77: (e, t, n) => {
         "use strict";
@@ -36226,6 +37324,8 @@
                 ? ((0, i.gn)(this, C, "f").classList.add("selected"),
                   (0, i.gn)(this, R, "f").classList.remove("selected"),
                   (0, i.gn)(this, P, "f").classList.remove("selected"),
+                  tabButton.classList.remove("selected"),
+                  tabContents.classList.remove("open"),
                   (0, i.gn)(this, I, "f").classList.add("open"),
                   (0, i.gn)(this, L, "f").classList.remove("open"),
                   (0, i.gn)(this, U, "f").classList.remove("open"))
@@ -36233,12 +37333,27 @@
                   ? ((0, i.gn)(this, C, "f").classList.remove("selected"),
                     (0, i.gn)(this, R, "f").classList.add("selected"),
                     (0, i.gn)(this, P, "f").classList.remove("selected"),
+                    tabButton.classList.remove("selected"),
+                    tabContents.classList.remove("open"),
                     (0, i.gn)(this, I, "f").classList.remove("open"),
                     (0, i.gn)(this, L, "f").classList.add("open"),
                     (0, i.gn)(this, U, "f").classList.remove("open"))
+                 //DORA
+                : "mod" == e
+                  ? ((0, i.gn)(this, C, "f").classList.remove("selected"),
+                    (0, i.gn)(this, R, "f").classList.remove("selected"),
+                    (0, i.gn)(this, P, "f").classList.remove("selected"),
+                    tabButton.classList.add("selected"),
+                    tabContents.classList.add("open"),
+                    (0, i.gn)(this, I, "f").classList.remove("open"),
+                    (0, i.gn)(this, L, "f").classList.remove("open"),
+                    (0, i.gn)(this, U, "f").classList.remove("open"))
+                 //
                   : ((0, i.gn)(this, C, "f").classList.remove("selected"),
                     (0, i.gn)(this, R, "f").classList.remove("selected"),
                     (0, i.gn)(this, P, "f").classList.add("selected"),
+                    tabButton.classList.remove("selected"),
+                    tabContents.classList.remove("open"),
                     (0, i.gn)(this, I, "f").classList.remove("open"),
                     (0, i.gn)(this, L, "f").classList.remove("open"),
                     (0, i.gn)(this, U, "f").classList.add("open")));
@@ -36278,7 +37393,8 @@
                 .filter((e) => e.category == $)
                 .every((e) => "none" == e.buttonContainer.style.display))
             )
-              for (const e of ["official", "community", "custom"])
+              //DORA
+              for (const e of ["official", "community", "custom", "mod"])
                 if (
                   (0, i.gn)(this, B, "f").some(
                     (t) =>
@@ -36337,6 +37453,9 @@
               (0, i.GG)(this, T, o, "f"),
               (0, i.GG)(this, E, l, "f"),
               (0, i.GG)(this, M, u, "f"),
+              //DORA
+              (forceLoadTrack = u),
+              //
               (0, i.GG)(this, _, document.createElement("div"), "f"),
               ((0, i.gn)(this, _, "f").className = h
                 ? "track-selection-ui with-background hidden"
@@ -36396,18 +37515,39 @@
               }),
               m.appendChild((0, i.gn)(this, P, "f")));
             const X = document.createElement("div");
-            ((X.className = "cover"),
-              (0, i.gn)(this, P, "f").prepend(X),
+            X.className = "cover";
+              (0, i.gn)(this, P, "f").prepend(X);
+             //DORA
+              tabButton = document.createElement("button");
+              tabButton.className = "button mod",
+              tabButton.append(
+                document.createTextNode("Kacky Throwback 2"),
+              ),
+              tabButton.addEventListener("click", () => {
+                ((0, i.gn)(this, w, "f").playUIClick(),
+                  (0, i.gn)(this, v, "m", Q).call(this, "mod"));
+              });
+              m.appendChild(tabButton);
+              const tabCover = document.createElement("div");
+              tabCover.className = "cover";
+              tabButton.prepend(tabCover),
+             //
               (0, i.GG)(this, I, document.createElement("div"), "f"),
               ((0, i.gn)(this, I, "f").className = "tracks-container open"),
               (0, i.gn)(this, _, "f").appendChild((0, i.gn)(this, I, "f")),
               (0, i.GG)(this, L, document.createElement("div"), "f"),
               ((0, i.gn)(this, L, "f").className = "tracks-container"),
-              (0, i.gn)(this, _, "f").appendChild((0, i.gn)(this, L, "f")),
+              (0, i.gn)(this, _, "f").appendChild((0, i.gn)(this, L, "f"));
+              //DORA
+              tabContents = document.createElement("div");
+              tabContents.className = "tracks-container";
+              (0, i.gn)(this, _, "f").appendChild(tabContents);
+              createTabContent();
+              //
               (0, i.GG)(this, U, document.createElement("div"), "f"),
               ((0, i.gn)(this, U, "f").className =
                 "tracks-container no-group-containers"),
-              (0, i.gn)(this, _, "f").appendChild((0, i.gn)(this, U, "f")));
+              (0, i.gn)(this, _, "f").appendChild((0, i.gn)(this, U, "f"));
             let Z = null;
             const ie = (e) => {
                 Z =
@@ -36650,6 +37790,8 @@
                 ? ((0, i.gn)(this, C, "f").classList.add("selected"),
                   (0, i.gn)(this, R, "f").classList.remove("selected"),
                   (0, i.gn)(this, P, "f").classList.remove("selected"),
+                  tabButton.classList.remove("selected"),
+                  tabContents.classList.remove("open"),
                   (0, i.gn)(this, I, "f").classList.add("open"),
                   (0, i.gn)(this, L, "f").classList.remove("open"),
                   (0, i.gn)(this, U, "f").classList.remove("open"),
@@ -36658,13 +37800,29 @@
                   ? ((0, i.gn)(this, C, "f").classList.remove("selected"),
                     (0, i.gn)(this, R, "f").classList.add("selected"),
                     (0, i.gn)(this, P, "f").classList.remove("selected"),
+                    tabButton.classList.remove("selected"),
+                    tabContents.classList.remove("open"),
                     (0, i.gn)(this, I, "f").classList.remove("open"),
                     (0, i.gn)(this, L, "f").classList.add("open"),
                     (0, i.gn)(this, U, "f").classList.remove("open"),
                     ((0, i.gn)(this, L, "f").scrollTop = te))
+                 //DORA
+                : "mod" == $
+                  ? ((0, i.gn)(this, C, "f").classList.remove("selected"),
+                    (0, i.gn)(this, R, "f").classList.remove("selected"),
+                    (0, i.gn)(this, P, "f").classList.remove("selected"),
+                    tabButton.classList.add("selected"),
+                    tabContents.classList.add("open"),
+                    (0, i.gn)(this, I, "f").classList.remove("open"),
+                    (0, i.gn)(this, L, "f").classList.remove("open"),
+                    (0, i.gn)(this, U, "f").classList.remove("open"),
+                    ((0, i.gn)(this, L, "f").scrollTop = te))
+                 //
                   : ((0, i.gn)(this, C, "f").classList.remove("selected"),
                     (0, i.gn)(this, R, "f").classList.remove("selected"),
                     (0, i.gn)(this, P, "f").classList.add("selected"),
+                    tabButton.classList.remove("selected"),
+                    tabContents.classList.remove("open"),
                     (0, i.gn)(this, I, "f").classList.remove("open"),
                     (0, i.gn)(this, L, "f").classList.remove("open"),
                     (0, i.gn)(this, U, "f").classList.add("open"),
@@ -65426,7 +66584,7 @@
                 (0, R.gn)(this, Jc, "m", Bh).call(this),
                 (0, R.gn)(this, Jc, "m", Oh).call(this));
             },
-            (h, d, u, f, p, g) => {
+            (h, d, u, f, p, g, quickLoad = false) => {
               (0, R.gn)(this, Ah, "f").hide();
               const m = () => {
                   ((0, R.gn)(this, Ah, "f").show(),
@@ -65439,6 +66597,11 @@
                     (0, R.GG)(this, bh, new Pr.A(!1), "f"),
                     u()
                       .then((u) => {
+                          //DORA
+                        if (modCustomLoad) {
+                          u = u.trackData;
+                          modCustomLoad = false;
+                        }
                         u.hasStartingPoint()
                           ? l(h, u, f, c, null)
                           : a.show(
@@ -65711,6 +66874,11 @@
                           .then((l) => {
                             u()
                               .then((u) => {
+                                //DORA
+                                if (modCustomLoad) {
+                                    u = u.trackData;
+                                    modCustomLoad = false;
+                                }
                                 u.hasStartingPoint()
                                   ? c(h, u, f, l)
                                   : a.show(
@@ -65898,6 +67066,13 @@
                         );
                       }));
                 };
+              //DORA
+              if (quickLoad) {
+                (0, R.gn)(this, Jc, "m", Fh).call(this);
+                A([]);
+                return;
+              }
+              //
               ((0, R.GG)(
                 this,
                 vh,
@@ -66031,9 +67206,9 @@
             }));
           const T = document.createElement("p");
           ((T.textContent = t.get("Multiplayer")),
-            k.appendChild(T),
-            (0, R.gn)(this, Sh, "f").appendChild(k),
-            (0, R.gn)(this, kh, "f").push(k));
+            k.appendChild(T));
+            //(0, R.gn)(this, Sh, "f").appendChild(k),
+            //(0, R.gn)(this, kh, "f").push(k));
           const E = document.createElement("button");
           ((E.className = "button button-image"),
             (E.innerHTML = '<img src="images/play.svg">'),
@@ -67419,6 +68594,11 @@
           );
         }),
         (qd = function (e) {
+          //DORA
+          if (modCustomLoad) {
+            e = modLoadCode;
+          };
+          //
           return new Promise((t, n) => {
             const i = new XMLHttpRequest();
             (i.overrideMimeType("text/plain"),
@@ -68446,6 +69626,9 @@
             })),
             "f",
           );
+          //DORA
+          window.loadCallback = (data) => (async () => (0, R.gn)(this, Bd, "m", Kd).call(this, data));
+          //
           const i = (0, R.gn)(this, Hd, "f").getAllCustomTrackNames();
           if (null != i) {
             const e = [];
@@ -70897,7 +72080,9 @@
         loadTrackSelectionTab() {
           try {
             const e = (0, R.gn)(this, Ru, "f").getItem(_u.trackSelectionTabKey);
-            if ("official" == e || "community" == e || "custom" == e) return e;
+            //DORA
+            if ("official" == e || "community" == e || "custom" == e || "mod" == e) return e;
+            //
           } catch (e) {
             console.error(e);
           }
@@ -71112,7 +72297,7 @@
         }
         getLeaderboard(e, t, n, i, r) {
           let a =
-            "https://vps.kodub.com/" +
+            "https://polyproxy.polymodloader.com/" +
             (0, R.gn)(this, rf, "f") +
             "leaderboard?version=0.6.2&trackId=" +
             t +
@@ -71323,7 +72508,7 @@
         }
         getLeaderboardUserEntry(e, t, n) {
           const i =
-            "https://vps.kodub.com/" +
+            "https://polyproxy.polymodloader.com/" +
             (0, R.gn)(this, rf, "f") +
             "leaderboardUserEntry?version=0.6.2&trackId=" +
             t +
@@ -71377,7 +72562,7 @@
         }
         getRecordings(e) {
           const t =
-            "https://vps.kodub.com/" +
+            "https://polyproxy.polymodloader.com/" +
             (0, R.gn)(this, rf, "f") +
             "recordings?version=0.6.2&ids=" +
             e.join(",");
@@ -71491,7 +72676,7 @@
                 c(new Error("Recording is too large"));
               else {
                 const o =
-                  "https://vps.kodub.com/" +
+                  "https://polyproxy.polymodloader.com/" +
                   (0, R.gn)(this, rf, "f") +
                   "leaderboard";
                 let d =
@@ -71617,7 +72802,7 @@
         submitUserProfile(e, t, n, i) {
           return new Promise((r, a) => {
             const s =
-                "https://vps.kodub.com/" + (0, R.gn)(this, rf, "f") + "user",
+                "https://polyproxy.polymodloader.com/" + (0, R.gn)(this, rf, "f") + "user",
               o =
                 "version=0.6.2&userToken=" +
                 encodeURIComponent(e) +
@@ -71649,7 +72834,7 @@
               s(new Error("Submit not allowed"));
             else {
               const o =
-                  "https://vps.kodub.com/" +
+                  "https://polyproxy.polymodloader.com/" +
                   (0, R.gn)(this, rf, "f") +
                   "verifyRecordings",
                 l =
@@ -71782,7 +72967,7 @@
         getUser(e) {
           return new Promise((t, n) => {
             const i =
-                "https://vps.kodub.com/" +
+                "https://polyproxy.polymodloader.com/" +
                 (0, R.gn)(this, rf, "f") +
                 "user?version=0.6.2&userToken=" +
                 encodeURIComponent(e),
