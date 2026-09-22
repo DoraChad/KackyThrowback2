@@ -1,13 +1,14 @@
 const github_root = "https://raw.githubusercontent.com/DoraChad/KackyThrowback2/refs/heads/main/"
-
+const CACHE_TTL_MS = 5 * 60 * 1000;
 
 
 let tabButton;
 let tabContents;
 let top3PerTrack;
-let forceLoadTrack;
+let forceLoadTrack = () => {};
 let modCustomLoad = false;
 let modLoadCode = "";
+
 
 const styles = document.createElement("style");
 styles.textContent = `
@@ -179,6 +180,12 @@ styles.textContent = `
 }`;
 document.head.appendChild(styles);
 
+function isLeaderboardCacheExpired() {
+  const timestamp = localStorage.getItem("mod_leaderboardCacheTimestamp");
+  if (!timestamp) return true;
+  return Date.now() - parseInt(timestamp, 10) > CACHE_TTL_MS;
+}
+
 const trackDataFetch = fetch(github_root + "resources/trackData.json").then(r => r.json());
 let trackData;
 
@@ -210,19 +217,29 @@ async function loadVariableFromGitHub(url) {
   return JSON.parse(text);
 }
 
-function getTop3Data(allData) {
+function getTop3Data(playerData, trackData) {
   const result = {};
 
-  allData.forEach((trackData, index) => {
+  trackData.forEach((track, index) => {
     const trackNum = index + 1;
-    const entries = trackData.entries || [];
+    result[trackNum] = [];
+  });
 
-    result[trackNum] = entries.slice(0, 3).map((entry, i) => ({
-      position: i + 1,
-      userId: entry.userId,
-      name: entry.nickname,
-      frames: entry.frames
-    }));
+  playerData.forEach(player => {
+    player.tracks.forEach(({ trackId, frames, position }) => {
+      if (position > 3) return;
+
+      const trackIndex = trackData.findIndex(t => t.id === trackId);
+      if (trackIndex === -1) return;
+      const trackNum = trackIndex + 1;
+
+      result[trackNum][position - 1] = {
+        position,
+        userId: player.userId,
+        name: player.nickname,
+        frames
+      };
+    });
   });
 
   return result;
@@ -289,8 +306,6 @@ async function getModLeaderboard() {
     urls.map(url => fetch(url).then(r => r.json()))
   );
 
-  top3PerTrack = getTop3Data(allData);
-
   const players = new Map();
 
   allData.forEach((leaderboardData, index) => {
@@ -326,6 +341,9 @@ async function getModLeaderboard() {
     });
   });
 
+  localStorage.setItem("mod_leaderboardCache", JSON.stringify(Array.from(players.values())));
+  localStorage.setItem("mod_leaderboardCacheTimestamp", Date.now().toString());
+  
   return Array.from(players.values());
 }
 
@@ -383,7 +401,13 @@ async function createTabContent() {
   }
   const blobs = await blobsPromise;
 
-  playerData = await getModLeaderboard();
+  if (!localStorage.getItem('mod_leaderboardCache') || isLeaderboardCacheExpired()) {
+    playerData = await getModLeaderboard();
+  } else {
+    playerData = JSON.parse(localStorage.getItem("mod_leaderboardCache") || "[]");
+  }
+
+  top3PerTrack = getTop3Data(playerData, trackData);
 
   const topDiv = document.createElement("div");
   tabContents.appendChild(topDiv);
