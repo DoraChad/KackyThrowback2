@@ -542,6 +542,14 @@ async function createTabContent() {
   const leaderboardContents = document.createElement("div");
   leaderboardContents.className = "seasonal-lbs-contents";
 
+  const warning = document.createElement("p");
+  warning.textContent = "leaderboards update every 5 min";
+  warning.style.color = "white";
+  warning.style.textAlign = "center";
+  warning.style.padding = "0";
+  warning.style.fontSize = "15px";
+  leaderboardDiv.appendChild(warning);
+
   //leaderboardDiv.appendChild(tabDiv);
   leaderboardDiv.appendChild(leaderboardContents);
 
