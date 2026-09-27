@@ -555,7 +555,7 @@ async function createTabContent() {
   leaderboardContents.className = "seasonal-lbs-contents";
 
   const warning = document.createElement("p");
-  warning.textContent = "leaderboards update every 5 min";
+  warning.textContent = "leaderboards are now locked";
   warning.style.color = "white";
   warning.style.textAlign = "center";
   warning.style.padding = "0";
