@@ -9,6 +9,18 @@ let forceLoadTrack = () => {};
 let modCustomLoad = false;
 let modLoadCode = "";
 
+const saveVariableToFile = function(data, filename = "data.json") {
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
 
 const styles = document.createElement("style");
 styles.textContent = `
@@ -401,13 +413,13 @@ async function createTabContent() {
   }
   const blobs = await blobsPromise;
 
-  if (!localStorage.getItem('mod_leaderboardCache') || isLeaderboardCacheExpired()) {
-    playerData = await getModLeaderboard();
-  } else {
-    playerData = JSON.parse(localStorage.getItem("mod_leaderboardCache") || "[]");
-  }
+  //if (!localStorage.getItem('mod_leaderboardCache') || isLeaderboardCacheExpired()) {
+  //  playerData = await getModLeaderboard();
+  //} else {
+  //  playerData = JSON.parse(localStorage.getItem("mod_leaderboardCache") || "[]");
+  //}
 
-  top3PerTrack = getTop3Data(playerData, trackData);
+  //top3PerTrack = getTop3Data(playerData, trackData);
 
   const topDiv = document.createElement("div");
   tabContents.appendChild(topDiv);
@@ -686,10 +698,10 @@ async function createTabContent() {
 
   leaderboardContents.appendChild(entriesDivTeam);
 
-  const sortedData = rankPlayers(playerData);
+  //const sortedData = rankPlayers(playerData);
   //const sortedData = calculateAveragePlacement(playerData);
   //const sortedTeams = calculateTeamAverages(sortedData);
-  //const sortedData = await loadVariableFromGitHub("data.json");
+  const sortedData = await loadVariableFromGitHub("data.json");
   //const sortedTeams = await loadVariableFromGitHub("teams.json");
   
   //saveVariableToFile(sortedData, "data.json");
@@ -63863,7 +63875,8 @@ function forceLoadTrackByCode(track, quickLoad = false) {
                       (0, R.gn)(this, ml, "f"))
                     )
                       return;
-                    const n = e.toExportString(l);
+                    //DORA
+                    const n = e.trackData.toExportString(l);
                     (0, R.GG)(
                       this,
                       pl,
@@ -63999,7 +64012,7 @@ function forceLoadTrackByCode(track, quickLoad = false) {
                 }
               }
             }),
-            //(0, R.gn)(this, ll, "f").appendChild((0, R.gn)(this, dl, "f")),
+            (0, R.gn)(this, ll, "f").appendChild((0, R.gn)(this, dl, "f")),
             (0, R.gn)(this, el, "m", bl).call(this));
           const N = document.createElement("button");
           ((N.className = "button play"),
